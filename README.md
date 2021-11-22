@@ -1,2 +1,2 @@
 # YCL_BAPI_UTIL
-Bapi util converts with any data &amp; BAPIPAREX
+Bapi util converts with structure (any data) &amp; BAPIPAREX
