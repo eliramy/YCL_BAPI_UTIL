@@ -1,0 +1,112 @@
+class YCL_BAPI_UTIL definition
+  public
+  abstract
+  final
+  create public .
+
+*"* public components of class YCL_BAPI_UTIL
+*"* do not include other source files here!!!
+public section.
+
+  class-methods BAPIPAREX_TO_STRUCT_CONV
+    importing
+      !IS_BAPIPAREX type BAPIPAREX
+    exporting
+      value(ES_DATA) type ANY .
+  class-methods STRUCT_TO_BAPIPAREX_CONV
+    importing
+      !IV_STRUCT_NAME type BAPIPAREX-STRUCTURE optional
+      !IS_DATA type ANY
+    preferred parameter IV_STRUCT_NAME
+    returning
+      value(RS_BAPIPAREX) type BAPIPAREX .
+protected section.
+*"* protected components of class YCL_BAPI_UTIL
+*"* do not include other source files here!!!
+private section.
+*"* private components of class YCL_BAPI_UTIL
+*"* do not include other source files here!!!
+ENDCLASS.
+
+
+
+CLASS YCL_BAPI_UTIL IMPLEMENTATION.
+
+
+* <SIGNATURE>---------------------------------------------------------------------------------------+
+* | Static Public Method YCL_BAPI_UTIL=>BAPIPAREX_TO_STRUCT_CONV
+* +-------------------------------------------------------------------------------------------------+
+* | [--->] IS_BAPIPAREX                   TYPE        BAPIPAREX
+* | [<---] ES_DATA                        TYPE        ANY
+* +--------------------------------------------------------------------------------------</SIGNATURE>
+METHOD bapiparex_to_struct_conv.
+
+  TYPES:
+    BEGIN OF ts_bapiparex_val,
+      valuepart1 TYPE bapiparex-valuepart1, "Data part of BAPI extension parameter
+      valuepart2 TYPE bapiparex-valuepart2, "Data part of BAPI extension parameter
+      valuepart3 TYPE bapiparex-valuepart3, "Data part of BAPI extension parameter
+      valuepart4 TYPE bapiparex-valuepart4, "Data part of BAPI extension parameter
+    END OF ts_bapiparex_val .
+
+  DATA: lv_bapirex_val_char(960) TYPE c,
+        ls_bapiparex_val         TYPE ts_bapiparex_val.
+
+  CLEAR es_data.
+
+  MOVE-CORRESPONDING is_bapiparex TO ls_bapiparex_val.
+  lv_bapirex_val_char = ls_bapiparex_val.
+
+  cl_abap_container_utilities=>read_container_c(
+    EXPORTING
+      im_container           = lv_bapirex_val_char
+    IMPORTING
+      ex_value               = es_data ).
+
+ENDMETHOD.
+
+
+* <SIGNATURE>---------------------------------------------------------------------------------------+
+* | Static Public Method YCL_BAPI_UTIL=>STRUCT_TO_BAPIPAREX_CONV
+* +-------------------------------------------------------------------------------------------------+
+* | [--->] IV_STRUCT_NAME                 TYPE        BAPIPAREX-STRUCTURE(optional)
+* | [--->] IS_DATA                        TYPE        ANY
+* | [<-()] RS_BAPIPAREX                   TYPE        BAPIPAREX
+* +--------------------------------------------------------------------------------------</SIGNATURE>
+METHOD struct_to_bapiparex_conv.
+
+  TYPES:
+    BEGIN OF ts_bapiparex_val,
+      valuepart1 TYPE bapiparex-valuepart1, "Data part of BAPI extension parameter
+      valuepart2 TYPE bapiparex-valuepart2, "Data part of BAPI extension parameter
+      valuepart3 TYPE bapiparex-valuepart3, "Data part of BAPI extension parameter
+      valuepart4 TYPE bapiparex-valuepart4, "Data part of BAPI extension parameter
+    END OF ts_bapiparex_val .
+
+  DATA: lo_typedescr             TYPE REF TO cl_abap_typedescr,
+        lv_bapirex_val_char(960) TYPE c,
+        ls_bapiparex_val         TYPE ts_bapiparex_val.
+
+  CLEAR rs_bapiparex.
+
+* Set structure name:
+* If structure name wasn't sepcified - Get name of structure type
+  IF iv_struct_name IS NOT INITIAL.
+    rs_bapiparex-structure = iv_struct_name.
+  ELSE.
+    lo_typedescr = cl_abap_typedescr=>describe_by_data( is_data ).
+    rs_bapiparex-structure = lo_typedescr->get_relative_name( ).
+  ENDIF.
+
+* Set structure in values fields
+  cl_abap_container_utilities=>fill_container_c(
+    EXPORTING
+      im_value               = is_data
+     IMPORTING
+       ex_container          = lv_bapirex_val_char ).
+
+  ls_bapiparex_val = lv_bapirex_val_char.
+  MOVE-CORRESPONDING ls_bapiparex_val TO rs_bapiparex.
+
+ENDMETHOD.
+ENDCLASS.
